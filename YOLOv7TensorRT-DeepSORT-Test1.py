@@ -293,7 +293,7 @@ if __name__ == '__main__':
         frame = cv2.imread(os.path.join(directory, filename))
         origin_img = pred.direct_inference(frame)
         # Update twice for 1 grabbed image because the system only doesn't track instantly
-        tracks = object_tracker.update_tracks(detections, frame=origin_img)
+        # tracks = object_tracker.update_tracks(detections, frame=origin_img)
         tracks = object_tracker.update_tracks(detections, frame=origin_img)
         # if double_start:
         #     tracks = object_tracker.update_tracks(detections, frame=origin_img)
