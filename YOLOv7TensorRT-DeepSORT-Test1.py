@@ -239,7 +239,10 @@ def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
         y0 = int(box[1])
         x1 = int(box[2])
         y1 = int(box[3])
-        detections.append(([x0, y0, int(x1 - x0), int(y1 - y0)], score, 'Keo'))
+        if cls_id == 0:
+            detections.append(([x0, y0, int(x1 - x0), int(y1 - y0)], score, 'Bad'))
+        if cls_id == 1:
+            detections.append(([x0, y0, int(x1 - x0), int(y1 - y0)], score, 'Good'))
 
         color = (_COLORS[cls_id % 80] * 255).astype(np.uint8).tolist()
         text = '{}:{:.1f}%'.format(class_names[cls_id], score * 100)
@@ -285,23 +288,22 @@ object_tracker = DeepSort(max_age=1,
                 today=None)
 
 if __name__ == '__main__':
+    newsest_dir = True
     pred = BaseEngine(engine_path='./Cracker2YOLOv7Tiny.trt')
-    directory = "D:\Dev\YOLOv7-DeepSORT\Test_Sequence5"
-
+    directory = "D:\Dev\YOLOv7-DeepSORT\Test_Sequence4"
+    if newsest_dir:
+        dir_path =  "D:\Dev\YOLOv7-DeepSORT\Sequence_Outputs"
+        subdirs = [os.path.join(dir_path, d) for d in os.listdir(dir_path) if os.path.isdir(os.path.join(dir_path, d))]
+        subdirs_sorted = sorted(subdirs, key=os.path.getmtime)
+        newest_dir = subdirs_sorted[-1]
+        directory = newest_dir
+    # directory = "D:\Dev\YOLOv7-DeepSORT\Sequence_Outputs/15-03-2023-16-29-57"
     # iterate over all files in directory
     for filename in os.listdir(directory):
         frame = cv2.imread(os.path.join(directory, filename))
         origin_img = pred.direct_inference(frame)
         # Update twice for 1 grabbed image because the system only doesn't track instantly
-        # tracks = object_tracker.update_tracks(detections, frame=origin_img)
-        tracks = object_tracker.update_tracks(detections, frame=origin_img)
-        # if double_start:
-        #     tracks = object_tracker.update_tracks(detections, frame=origin_img)
-        #     tracks = object_tracker.update_tracks(detections, frame=origin_img)
-        # else:
-        #     # tracks = object_tracker.update_tracks(detections, frame=origin_img)
-        #     tracks = object_tracker.update_tracks(detections, frame=origin_img)
-        # double_start = False
+        tracks = object_tracker.update_tracks(detections, frame=origin_img, double=False)
 
         for track in tracks:
             if not track.is_confirmed():
@@ -316,9 +318,9 @@ if __name__ == '__main__':
                         (0, 255, 0), 2)
 
         # cv2.putText(origin_img, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
-        origin_img = cv2.resize(origin_img, (1280, 720))
+        origin_img = cv2.resize(origin_img, (1200, 900))
         origin_img = cv2.cvtColor(origin_img, cv2.COLOR_RGB2BGR)
         cv2.imshow('img', origin_img)
-        cv2.waitKey(1000)
+        cv2.waitKey(300)
 
     cv2.destroyAllWindows()
