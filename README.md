@@ -11,4 +11,6 @@ You can create an image sequence by supplying the function with a step, a small 
 ## TRT files
 The DeepSORT module works seperately from your object detection pipeline. You drop your TRT file in the engine_path. The output bounding boxes, classes and confidences will be supplied to the DeepSORT tracker for assigment
 
-![2023-03-15 22-57-32 (online-video-cutter com)](https://user-images.githubusercontent.com/20887245/225368068-703605ae-63a9-4a86-ad94-00bb20960d9b.gif)
+![Demo](https://user-images.githubusercontent.com/20887245/225368522-fc1806dd-265c-434f-b30e-c29bd64bbbd2.gif)
+
+https://user-images.githubusercontent.com/20887245/225368536-54465e7d-e8fe-4135-8549-4df0be2f617d.mp4
