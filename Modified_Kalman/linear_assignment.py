@@ -60,7 +60,11 @@ def min_cost_matching(
         return [], track_indices, detection_indices  # Nothing to match.
 
     cost_matrix = distance_metric(tracks, detections, track_indices, detection_indices)
-    cost_matrix[cost_matrix > max_distance] = max_distance + 1e-5
+    if (len(cost_matrix) == 2 and cost_matrix[1] != 'cas') or len(cost_matrix) != 2:
+        cost_matrix = cost_matrix
+        max_distance = 1000
+        cost_matrix[cost_matrix > max_distance] = max_distance + 1e-5
+    # cost_matrix[cost_matrix > max_distance] = max_distance + 1e-5
     # indices = linear_assignment(cost_matrix)
     indices = np.vstack(linear_sum_assignment(cost_matrix)).T
 

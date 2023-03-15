@@ -167,7 +167,7 @@ class Tracker:
             unmatched_tracks_b,
             unmatched_detections,
         ) = linear_assignment.min_cost_matching(
-            iou_matching.iou_cost,
+            iou_matching.Euclidean_distance_cost,
             self.max_iou_distance,
             self.tracks,
             detections,

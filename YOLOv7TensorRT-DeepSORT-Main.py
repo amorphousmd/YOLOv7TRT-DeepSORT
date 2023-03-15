@@ -1,3 +1,4 @@
+# This is the base file, i made modifications using this file
 import tensorrt as trt
 import pycuda.autoinit
 import pycuda.driver as cuda
@@ -303,7 +304,7 @@ if __name__ == '__main__':
         frame = cv2.imread(os.path.join(directory, filename))
         origin_img = pred.direct_inference(frame)
         # Update twice for 1 grabbed image because the system only doesn't track instantly
-        tracks = object_tracker.update_tracks(detections, frame=origin_img, double=False)
+        tracks = object_tracker.update_tracks(detections, frame=origin_img, double=True)
 
         for track in tracks:
             if not track.is_confirmed():
@@ -321,6 +322,6 @@ if __name__ == '__main__':
         origin_img = cv2.resize(origin_img, (1200, 900))
         origin_img = cv2.cvtColor(origin_img, cv2.COLOR_RGB2BGR)
         cv2.imshow('img', origin_img)
-        cv2.waitKey(300)
+        cv2.waitKey(0)
 
     cv2.destroyAllWindows()

@@ -4,11 +4,11 @@ from datetime import datetime
 
 # Load the images, this will become the ingredients to craft the sequence, the smaller image
 # will be superimposed on the iteratively, generating multiple images with fixed steps
-step = 100 # How big each step is
+step = 200 # How big each step is
 preset_offset = 0 # Positive number means moving down in the y_direction
 show_image = True # Change to false if you don't want to show the sequence
 img_large = cv2.imread('Sequence_Inputs/Base.jpg')
-img_small = cv2.imread('Sequence_Inputs/Bar_4.jpg')
+img_small = cv2.imread('Sequence_Inputs/Bar_6.jpg')
 img_dir = 'Sequence_Outputs'  # Where to output images
 
 def superimpose(img_large, img_small, yoffset):

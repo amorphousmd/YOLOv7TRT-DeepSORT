@@ -83,3 +83,27 @@ def iou_cost(tracks, detections, track_indices=None, detection_indices=None):
         bbox = tracks[track_idx].to_ltwh()
         cost_matrix[row, :] = 1.0 - iou(bbox, candidates)
     return cost_matrix
+
+
+def Euclidean_distance(bbox, candidates):
+    bbox_cx = bbox[0] + bbox[2] / 2
+    bbox_cy = bbox[1] + bbox[3] / 2
+    candidates_cx = candidates[:, 0] + candidates[:, 2] / 2
+    candidates_cy = candidates[:, 1] + candidates[:, 3] / 2
+    distance = np.sqrt((candidates_cx[:] - bbox_cx) ** 2 + (candidates_cy - bbox_cy) ** 2)
+    return distance
+
+
+def Euclidean_distance_cost(tracks, detections, track_indices=None,
+                            detection_indices=None):
+    if track_indices is None:
+        track_indices = np.arange(len(tracks))
+    if detection_indices is None:
+        detection_indices = np.arange(len(detections))
+
+    cost_matrix = np.zeros((len(track_indices), len(detection_indices)))
+    for row, track_idx in enumerate(track_indices):
+        bbox = tracks[track_idx].to_tlwh()
+        candidates = np.asarray([detections[i].ltwh for i in detection_indices])
+        cost_matrix[row, :] = Euclidean_distance(bbox, candidates)
+    return cost_matrix
