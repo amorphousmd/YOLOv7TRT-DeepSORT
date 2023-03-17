@@ -9,7 +9,6 @@ from . import kalman_filter
 
 INFTY_COST = 1e5
 
-
 def min_cost_matching(
     distance_metric,
     max_distance,
@@ -83,10 +82,21 @@ def min_cost_matching(
             unmatched_detections.append(detection_idx)
         else:
             matches.append((track_idx, detection_idx))
-            if detections[detection_idx].ltwh[1] - tracks[track_idx].mean[1] > 200:
+            if detections[detection_idx].ltwh[1] - tracks[track_idx].mean[1] > 0:
                 matches.remove((track_idx, detection_idx))
                 unmatched_tracks.append(track_idx)
                 unmatched_detections.append(detection_idx)
+                continue
+            else:
+                if  0.77 < \
+                     ((detections[detection_idx].ltwh[2] * detections[detection_idx].ltwh[3]) /
+                     ((tracks[track_idx].mean[3]) * (tracks[track_idx].mean[3]) * (tracks[track_idx].mean[2])))\
+                    < 1.3:
+                    continue
+                else:
+                    matches.remove((track_idx, detection_idx))
+                    unmatched_tracks.append(track_idx)
+                    unmatched_detections.append(detection_idx)
 
     return matches, unmatched_tracks, unmatched_detections
 
@@ -220,3 +230,4 @@ def gate_cost_matrix(
         )
         cost_matrix[row, gating_distance > gating_threshold] = gated_cost
     return cost_matrix
+
