@@ -305,6 +305,7 @@ if __name__ == '__main__':
         origin_img = pred.direct_inference(frame)
         # Update twice for 1 grabbed image because the system only doesn't track instantly
         tracks = object_tracker.update_tracks(detections, frame=origin_img, double=True)
+        print(object_tracker.tracker.values_dict)
 
         for track in tracks:
             if not track.is_confirmed():

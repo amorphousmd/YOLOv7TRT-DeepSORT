@@ -88,15 +88,20 @@ def min_cost_matching(
                 unmatched_detections.append(detection_idx)
                 continue
             else:
-                if  0.77 < \
+                if not 0.77 < \
                      ((detections[detection_idx].ltwh[2] * detections[detection_idx].ltwh[3]) /
                      ((tracks[track_idx].mean[3]) * (tracks[track_idx].mean[3]) * (tracks[track_idx].mean[2])))\
                     < 1.3:
-                    continue
-                else:
                     matches.remove((track_idx, detection_idx))
                     unmatched_tracks.append(track_idx)
                     unmatched_detections.append(detection_idx)
+                else:
+                    print(detections[detection_idx].ltwh[0] - tracks[track_idx].mean[0] + tracks[track_idx].mean[2] * tracks[track_idx].mean[3] / 2 )
+                    if not -20 < detections[detection_idx].ltwh[0] - tracks[track_idx].mean[0] + tracks[track_idx].mean[2] * tracks[track_idx].mean[3] / 2 < 20:
+                        matches.remove((track_idx, detection_idx))
+                        unmatched_tracks.append(track_idx)
+                        unmatched_detections.append(detection_idx)
+
 
     return matches, unmatched_tracks, unmatched_detections
 

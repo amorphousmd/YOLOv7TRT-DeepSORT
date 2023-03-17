@@ -6,8 +6,10 @@ from . import kalman_filter
 from . import linear_assignment
 from . import iou_matching
 from .track import Track
-
-
+from .track import TrackState
+from deep_sort_realtime.deep_sort.detection import Detection
+global counter
+counter = 0
 class Tracker:
     """
     This is the multi-target tracker.
@@ -62,6 +64,8 @@ class Tracker:
         self.tracks = []
         self.del_tracks_ids = []
         self._next_id = 1
+        self.values_dict = {}
+        self.values_count = {}
         if override_track_class:
             self.track_class = override_track_class
         else:
@@ -76,6 +80,7 @@ class Tracker:
             track.predict(self.kf)
 
     def update(self, detections, today=None):
+        global counter
         """Perform measurement update and track management.
 
         Parameters
@@ -96,6 +101,7 @@ class Tracker:
         # Run matching cascade.
         matches, unmatched_tracks, unmatched_detections = self._match(detections)
 
+
         # Update track set.
         for track_idx, detection_idx in matches:
             self.tracks[track_idx].update(self.kf, detections[detection_idx])
@@ -105,6 +111,15 @@ class Tracker:
             self._initiate_track(detections[detection_idx])
         new_tracks = []
         self.del_tracks_ids = []
+        for t in self.tracks:
+            try:
+                if self.values_dict[int(t.track_id)] - t.mean[1] < 0 :
+                    print(self.values_dict[int(t.track_id)] - t.mean[1])
+                    print(t.track_id)
+                    t.state = TrackState.Deleted
+                    self._initiate_track(self.find_closest_object(detections, t.mean[1] - t.mean[3]/2))
+            except KeyError:
+                pass
         for t in self.tracks:
             if not t.is_deleted():
                 new_tracks.append(t)
@@ -122,9 +137,15 @@ class Tracker:
             features += track.features
             targets += [track.track_id for _ in track.features]
             track.features = [track.features[-1]]
+
         self.metric.partial_fit(
             np.asarray(features), np.asarray(targets), active_targets
         )
+        print(counter)
+        if counter % 2 != 0:
+            for track in self.tracks:
+                self.update_dict(int(track.track_id), track.mean[1])
+        counter += 1
 
     def _match(self, detections):
         def gated_metric(tracks, dets, track_indices, detection_indices):
@@ -207,3 +228,32 @@ class Tracker:
     def delete_all_tracks(self):
         self.tracks = []
         self._next_id = 1
+
+
+
+    def update_dict(self, id, value):
+        if id not in self.values_dict:
+            self.values_dict[id] = value
+            self.values_count[id] = 1
+        else:
+            self.values_dict[id] = value
+            for key in self.values_count:
+                self.values_count[key] += 1
+
+    def clean_dict(self):
+        # check if the value has not been modified for 5 calls
+        for id in self.values_count:
+            if self.values_count[id] >= 5:
+                del self.values_dict[id]
+                del self.values_count[id]
+
+    def find_closest_object(self, objects_list, x):
+        closest_object = None
+        closest_distance = float('inf')
+        for obj in objects_list:
+            distance = abs(obj.ltwh[1] - x)
+            if distance < closest_distance:
+                closest_object = obj
+                closest_distance = distance
+        return closest_object
+
